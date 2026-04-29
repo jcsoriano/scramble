@@ -5,6 +5,7 @@ namespace Dedoc\Scramble\Infer\Services;
 use Illuminate\Support\Str;
 use PhpParser\NameContext;
 use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Use_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 
@@ -53,7 +54,13 @@ class FileNameResolver
 
     public function __invoke(string $shortName): string
     {
-        $name = $this->nameContext->getResolvedName(new Name([$shortName]), 1)->toString();
+        if (str_starts_with($shortName, '\\')) {
+            // PHPDoc FQN like `\App\Services\Foo\Bar` is already resolved.
+            $name = ltrim($shortName, '\\');
+        } else {
+            $resolved = $this->nameContext->getResolvedName(new Name($shortName), Use_::TYPE_NORMAL);
+            $name = $resolved?->toString() ?? $shortName;
+        }
 
         $classLikeExists = class_exists($name)
             || interface_exists($name)
