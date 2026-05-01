@@ -17,7 +17,6 @@ it('returns leading-backslash FQN as-is without prepending the file namespace', 
 
     $resolved = $resolver('\\App\\Services\\Search\\Meilisearch\\Product\\ProductSearchService');
 
-    // No "Facades\…" prefix, no doubled segments, no `\\` literal anywhere.
     expect($resolved)->toBe('App\\Services\\Search\\Meilisearch\\Product\\ProductSearchService');
 });
 
@@ -30,8 +29,6 @@ it('resolves an unqualified short name against the file namespace when the class
 });
 
 it('resolves a multi-segment relative name correctly', function () {
-    // namespace App; + relative `Sub\Thing` should produce `App\Sub\Thing`,
-    // not `App\Sub\Thing` collapsed into a single Name part.
     $resolver = makeResolver_FileNameResolverTest('App');
 
     $resolved = $resolver('Sub\\Thing');
@@ -48,7 +45,6 @@ it('resolves an aliased use statement', function () {
 
     $resolved = $resolver('Bar');
 
-    // Class doesn't exist, so we fall back to the short name — same contract as above.
     expect($resolved)->toBe('Bar');
 });
 

@@ -54,13 +54,10 @@ class FileNameResolver
 
     public function __invoke(string $shortName): string
     {
-        if (str_starts_with($shortName, '\\')) {
-            // PHPDoc FQN like `\App\Services\Foo\Bar` is already resolved.
-            $name = ltrim($shortName, '\\');
-        } else {
-            $resolved = $this->nameContext->getResolvedName(new Name($shortName), Use_::TYPE_NORMAL);
-            $name = $resolved?->toString() ?? $shortName;
-        }
+        // If the name is prefixed with `\\`, it is already FQN
+        $name = str_starts_with($shortName, '\\')
+            ?  ltrim($shortName, '\\')
+            : $this->nameContext->getResolvedName(new Name([$shortName]), Use_::TYPE_NORMAL)->toString();
 
         $classLikeExists = class_exists($name)
             || interface_exists($name)
